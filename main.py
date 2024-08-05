@@ -17,9 +17,23 @@ width = 52*35
 height = 400
 screen = pygame.display.set_mode([width, height])
 pygame.display.set_caption("Murtaza Haque - Python Keyboard Piano")
+
 activeWhites = []
 activeBlacks = []
+whiteSounds = []
+blackSounds = []
 
+leftH = lists.left_hand
+rightH = lists.right_hand
+notes = lists.piano_notes
+whiteNotes = lists.white_notes
+blackNotes = lists.black_notes
+blackLabels = lists.black_labels
+
+for i in range(len(whiteNotes)):
+    whiteSounds.append(pygame.mixer.Sound(f'assets\\notes\\{whiteNotes[i]}.wav'))
+for i in range(len(blackNotes)):
+    blackSounds.append(pygame.mixer.Sound(f'assets\\notes\\{blackNotes[i]}.wav'))
 
 def drawPiano(whites, blacks):
     white_rects = []
@@ -27,7 +41,7 @@ def drawPiano(whites, blacks):
         rect = pygame.draw.rect(screen, 'white', [i * 35, height - 300, 35, 300], 0, 2)
         white_rects.append(rect)
         pygame.draw.rect(screen, 'black', [i * 35, height - 300, 35, 300], 2, 2)
-        key_label = smlFont.render(lists.white_notes[i], True, 'black')
+        key_label = smlFont.render(whiteNotes[i], True, 'black')
         screen.blit(key_label, (i * 35 + 3, height - 20))
     skip_count = 0
     last_skip = 2
@@ -41,7 +55,7 @@ def drawPiano(whites, blacks):
                     pygame.draw.rect(screen, 'green', [23 + (i * 35) + (skip_count * 35), height - 300, 24, 200], 2, 2)
                     blacks[q][1] -= 1
 
-        key_label = tnyfont.render(lists.black_labels[i], True, 'white')
+        key_label = tnyfont.render(blackLabels[i], True, 'white')
         screen.blit(key_label, (25 + (i * 35) + (skip_count * 35), height - 120))
         black_rects.append(rect)
         skip_track += 1
@@ -71,6 +85,18 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            blackKey = False
+            for i in range(len(blackKeys)):
+                if blackKeys[i].collidepoint(event.pos):
+                    blackSounds[i].play(0,1000)
+                    blackKey = True
+                    activeBlacks.append([i,30])
+            for i in range(len(whiteKeys)):
+                if whiteKeys[i].collidepoint(event.pos) and not blackKey:
+                    whiteSounds[i].play(0,1000)
+                    activeWhites.append([i,30])
 
     pygame.display.flip()
 pygame.quit()
